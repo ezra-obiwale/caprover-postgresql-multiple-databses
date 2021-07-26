@@ -15,39 +15,30 @@ mechanism.
 
 ## Usage
 
-### By mounting a volume
+The usage is the same as the [official image](https://hub.docker.com/_/postgres/) with the addition of 2 environment variables.
 
-Clone the repository, mount its directory as a volume into
-`/docker-entrypoint-initdb.d` and declare database names separated by commas in
-`POSTGRES_DATABASES` environment variable as follows
-(`docker-compose` syntax):
+### POSTGRES_VERSION
 
-    myapp-postgresql:
-        image: postgres:9.6.2
-        volumes:
-            - ../docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
+This indicates the version of the postgres image you want to download. Default is `latest`.
+
+### POSTGRES_DATABASES
+
+This is where you specify the multiple databases required. The format is `USER:PASSWORD@DATABASE` separated by semi-colons (`;`).
+
+## Examples
+
+In both examples below, 2 databases are created with different users and passwords. You are however not limited to 2 databases. You can create as many as required.
+
+### Run an instance
+
+```bash
+docker run -e POSTGRES_PASSWORD=mysecurepassword -e POSTGRES_DATABASES="user1:password1@database1;user2:password2@database2" ezraobiwale/postgres-multidb
+```
+
+### Docker Compose
+
+    postgres:
+        image: ezraobiwale/postgres-multidb:latest
         environment:
-            - POSTGRES_DATABASES="ownerOfDB1:passwordOfDB1@DB1; ownerOfDB2:passwordOfDB2@DB2; ...ownerOfDB(n):passwordOfDB(n)@DB(n)"
-
-### By building a custom image
-
-Clone the repository, build and push the image to your Docker repository,
-for example for Google Private Repository do the following:
-
-    docker build --tag=eu.gcr.io/your-project/postgres-multi-db .
-    gcloud docker -- push eu.gcr.io/your-project/postgres-multi-db
-
-You still need to pass the `POSTGRES_DATABASES` environment variable
-to the container:
-
-    myapp-postgresql:
-        image: eu.gcr.io/your-project/postgres-multi-db
-        environment:
-            - POSTGRES_DATABASES="ownerOfDB1:passwordOfDB1@DB1; ownerOfDB2:passwordOfDB2@DB2; ...ownerOfDB(n):passwordOfDB(n)@DB(n)"
-
-### Non-standard database names
-
-If you need to use non-standard database names (hyphens, uppercase letters etc), quote them in `POSTGRES_DATABASES`:
-
-        environment:
-            - POSTGRES_DATABASES='"ownerOfDB1":"passwordOfDB1"@"DB1"; "ownerOfDB2":"passwordOfDB2"@"DB2"; "'
+            - POSTGRES_PASSWORD=mysecurepassword
+            - POSTGRES_DATABASES="user1:password1@database1; user2:password2@database2"

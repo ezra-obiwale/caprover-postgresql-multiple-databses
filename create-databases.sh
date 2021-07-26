@@ -12,21 +12,20 @@ function create_user_and_database() {
 	echo "  Creating user '$owner' with password '$password' and database '$database'"
 	psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
 	    CREATE DATABASE $database;
-	    CREATE USER $owner WITH ENCRYPTED PASSWORD '$password' IF NOT EXISTS;
+		REVOKE connect ON DATABASE $database FROM PUBLIC;
+	    CREATE USER $owner WITH ENCRYPTED PASSWORD '$password';
 	    GRANT ALL PRIVILEGES ON DATABASE $database TO $owner;
 EOSQL
 }
 
 if [ -n "$POSTGRES_DATABASES" ]; then
-	echo "Creating databases"
+	echo "Creating multiple databases"
 
 	for db in $(echo $POSTGRES_DATABASES | tr ';' ' '); do
+		echo
 		create_user_and_database $db
 	done
 
-	echo "Created multiple databases"
-else
-	echo "Nothing to do"
+	echo
+	echo "Created all databases"
 fi
-
-export POSTGRES_DATABASES='"ownerOfDB1":"passwordOfDB1"@"DB1"; "ownerOfDB2":"passwordOfDB2"@"DB2"; "'

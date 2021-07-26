@@ -1,4 +1,6 @@
-FROM library/postgres:9.6-alpine
+ARG POSTGRES_VERSION=latest
+
+FROM postgres:${POSTGRES_VERSION}
 
 COPY create-databases.sh /docker-entrypoint-initdb.d/
 
