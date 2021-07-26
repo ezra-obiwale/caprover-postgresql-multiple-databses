@@ -19,7 +19,7 @@ mechanism.
 
 Clone the repository, mount its directory as a volume into
 `/docker-entrypoint-initdb.d` and declare database names separated by commas in
-`POSTGRES_MULTIPLE_DATABASES` environment variable as follows
+`POSTGRES_DATABASES` environment variable as follows
 (`docker-compose` syntax):
 
     myapp-postgresql:
@@ -27,8 +27,7 @@ Clone the repository, mount its directory as a volume into
         volumes:
             - ../docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
         environment:
-            - POSTGRES_MULTIPLE_DATABASES="DB1,ownerOfDB1: DB2,ownerOfDB2: ...DB(n), ownerOfDB(n)"
-            - POSTGRES_PASSWORD=
+            - POSTGRES_DATABASES="ownerOfDB1:passwordOfDB1@DB1; ownerOfDB2:passwordOfDB2@DB2; ...ownerOfDB(n):passwordOfDB(n)@DB(n)"
 
 ### By building a custom image
 
@@ -38,18 +37,17 @@ for example for Google Private Repository do the following:
     docker build --tag=eu.gcr.io/your-project/postgres-multi-db .
     gcloud docker -- push eu.gcr.io/your-project/postgres-multi-db
 
-You still need to pass the `POSTGRES_MULTIPLE_DATABASES` environment variable
+You still need to pass the `POSTGRES_DATABASES` environment variable
 to the container:
 
     myapp-postgresql:
         image: eu.gcr.io/your-project/postgres-multi-db
         environment:
-            - POSTGRES_MULTIPLE_DATABASES="DB1,ownerOfDB1: DB2,ownerOfDB2: ...DB(n), ownerOfDB(n)"
-            - POSTGRES_PASSWORD=
+            - POSTGRES_DATABASES="ownerOfDB1:passwordOfDB1@DB1; ownerOfDB2:passwordOfDB2@DB2; ...ownerOfDB(n):passwordOfDB(n)@DB(n)"
 
 ### Non-standard database names
 
-If you need to use non-standard database names (hyphens, uppercase letters etc), quote them in `POSTGRES_MULTIPLE_DATABASES`:
+If you need to use non-standard database names (hyphens, uppercase letters etc), quote them in `POSTGRES_DATABASES`:
 
         environment:
-            - POSTGRES_MULTIPLE_DATABASES="DB1","ownerOfDB1": "DB2","ownerOfDB2": ..."DB(n)", "ownerOfDB(n)"
+            - POSTGRES_DATABASES='"ownerOfDB1":"passwordOfDB1"@"DB1"; "ownerOfDB2":"passwordOfDB2"@"DB2"; "'
